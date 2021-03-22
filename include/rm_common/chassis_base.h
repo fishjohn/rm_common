@@ -30,21 +30,19 @@ class ChassisBase : public controller_interface::MultiInterfaceController
  public:
   ChassisBase() = default;
   virtual bool init(hardware_interface::RobotHW *robot_hw,
-                    ros::NodeHandle &root_nh, ros::NodeHandle &controller_nh) override { return true; };
+                    ros::NodeHandle &root_nh, ros::NodeHandle &controller_nh) override;
   virtual void update(const ros::Time &time, const ros::Duration &period) override;
  protected:
   virtual void passive();
   virtual void raw();
-  virtual void follow(const ros::Time &time, const ros::Duration &period);
-  virtual void twist(const ros::Time &time, const ros::Duration &period) {};
-  virtual void gyro(const ros::Time &time) {};
+  virtual void follow(const ros::Time &time, const ros::Duration &period) = 0;
   virtual void tfVelFromYawToBase(const ros::Time &time);
   virtual void recovery();
   virtual void moveJoint(const ros::Duration &period) = 0;
   virtual void cmdChassisCallback(const rm_msgs::ChassisCmdConstPtr &msg);
   virtual void cmdVelCallback(const geometry_msgs::Twist::ConstPtr &cmd);
   virtual void updateOdom(const ros::Time &time, const ros::Duration &period);
-  virtual geometry_msgs::Twist iKine();
+  virtual geometry_msgs::Twist iKine() = 0;
 
   std::vector<hardware_interface::JointHandle> joint_vector_{};
   hardware_interface::RobotStateHandle robot_state_handle_{};
@@ -53,6 +51,8 @@ class ChassisBase : public controller_interface::MultiInterfaceController
   geometry_msgs::TransformStamped odom2base_{};
   geometry_msgs::Vector3Stamped vel_cmd_{};
   geometry_msgs::Vector3Stamped vel_tfed_{};
+  geometry_msgs::Vector3 linear_vel_{}, angular_vel_{};
+  geometry_msgs::Twist vel_base_{};
 
   RampFilter<double> *ramp_x{}, *ramp_y{}, *ramp_w{};
 
