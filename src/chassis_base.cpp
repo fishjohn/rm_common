@@ -20,6 +20,10 @@ bool ChassisBase::init(hardware_interface::RobotHW *robot_hw,
   for (int i = 0; i < twist_cov_list.size(); ++i)
     ROS_ASSERT(twist_cov_list[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 
+  // Setup odometry realtime publisher + odom message constant fields
+  odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(root_nh, "odom", 100));
+  odom_pub_->msg_.header.frame_id = "odom";
+  odom_pub_->msg_.child_frame_id = "base_link";
   odom_pub_->msg_.twist.covariance = {
       static_cast<double>(twist_cov_list[0]), 0., 0., 0., 0., 0.,
       0., static_cast<double>(twist_cov_list[1]), 0., 0., 0., 0.,
@@ -42,13 +46,14 @@ bool ChassisBase::init(hardware_interface::RobotHW *robot_hw,
 void ChassisBase::update(const ros::Time &time, const ros::Duration &period) {
   cmd_chassis_ = *chassis_rt_buffer_.readFromRT();
   ramp_x->setAcc(cmd_chassis_.accel.linear.x);
-  ramp_w->setAcc(cmd_chassis_.accel.angular.z);
   ramp_y->setAcc(cmd_chassis_.accel.linear.y);
+  ramp_w->setAcc(cmd_chassis_.accel.angular.z);
+
   geometry_msgs::Twist vel_cmd;
   vel_cmd = *vel_rt_buffer_.readFromRT();
   vel_cmd_.vector.x = vel_cmd.linear.x;
+  vel_cmd_.vector.y = vel_cmd.linear.y;
   vel_cmd_.vector.z = vel_cmd.angular.z;
-  vel_cmd_.vector.y = vel_cmd.angular.y;
 
   if (state_ != cmd_chassis_.mode) {
     state_ = StandardState(cmd_chassis_.mode);
@@ -56,8 +61,8 @@ void ChassisBase::update(const ros::Time &time, const ros::Duration &period) {
   }
 }
 
-void ChassisBase::recovery() {
-  geometry_msgs::Twist vel = iKine();
+void ChassisBase::recovery(const ros::Duration &period) {
+  geometry_msgs::Twist vel = iKine(period);
 
   ramp_x->clear(vel.linear.x);
   ramp_y->clear(vel.linear.y);
@@ -74,12 +79,12 @@ void ChassisBase::passive() {
   }
 }
 
-void ChassisBase::raw() {
+void ChassisBase::raw(const ros::Duration &period) {
   if (state_changed_) {
     state_changed_ = false;
     ROS_INFO("[Chassis] Enter RAW");
 
-    recovery();
+    recovery(period);
   }
 
   vel_tfed_ = vel_cmd_;

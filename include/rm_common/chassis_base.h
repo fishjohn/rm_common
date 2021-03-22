@@ -34,15 +34,15 @@ class ChassisBase : public controller_interface::MultiInterfaceController
   virtual void update(const ros::Time &time, const ros::Duration &period) override;
  protected:
   virtual void passive();
-  virtual void raw();
+  virtual void raw(const ros::Duration &period);
   virtual void follow(const ros::Time &time, const ros::Duration &period) = 0;
   virtual void tfVelFromYawToBase(const ros::Time &time);
-  virtual void recovery();
+  virtual void recovery(const ros::Duration &period);
   virtual void moveJoint(const ros::Duration &period) = 0;
   virtual void cmdChassisCallback(const rm_msgs::ChassisCmdConstPtr &msg);
   virtual void cmdVelCallback(const geometry_msgs::Twist::ConstPtr &cmd);
   virtual void updateOdom(const ros::Time &time, const ros::Duration &period);
-  virtual geometry_msgs::Twist iKine() = 0;
+  virtual geometry_msgs::Twist iKine(const ros::Duration &period) = 0;
 
   std::vector<hardware_interface::JointHandle> joint_vector_{};
   hardware_interface::RobotStateHandle robot_state_handle_{};
