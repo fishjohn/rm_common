@@ -10,23 +10,26 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-Wall -Werror)
 
 find_package(catkin REQUIRED COMPONENTS
-        roscpp
-        roslint
+    roscpp
+    roslint
 
-        tf
-        rm_msgs
-        geometry_msgs
-        realtime_tools
-        )
+    tf2
+    tf2_geometry_msgs
+    rm_msgs
+    geometry_msgs
+    realtime_tools
+    )
 
 catkin_package(
-        INCLUDE_DIRS include
-        CATKIN_DEPENDS
-        rm_msgs
-        roscpp
-        DEPENDS
-        LIBRARIES
-        rm_common
+    INCLUDE_DIRS include
+    CATKIN_DEPENDS
+    rm_msgs
+    tf2
+    tf2_geometry_msgs
+    roscpp
+    DEPENDS
+    LIBRARIES
+    rm_common
 )
 
 include_directories(
