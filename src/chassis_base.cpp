@@ -3,6 +3,7 @@
 //
 #include "rm_common/chassis_base.h"
 #include <rm_common/ros_utilities.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace rm_chassis_base {
 bool ChassisBase::init(hardware_interface::RobotHW *robot_hw,
