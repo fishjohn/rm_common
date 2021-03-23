@@ -33,6 +33,7 @@ bool ChassisBase::init(hardware_interface::RobotHW *robot_hw,
       0., 0., 0., 0., 0., static_cast<double>(twist_cov_list[5])};
 
   ramp_x = new RampFilter<double>(0, 0.001);
+  ramp_y = new RampFilter<double>(0, 0.001);
   ramp_w = new RampFilter<double>(0, 0.001);
 
   cmd_chassis_sub_ =
@@ -86,7 +87,6 @@ void ChassisBase::raw(const ros::Duration &period) {
 
     recovery(period);
   }
-
   vel_tfed_ = vel_cmd_;
 }
 

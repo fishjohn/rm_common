@@ -35,7 +35,7 @@ class ChassisBase : public controller_interface::MultiInterfaceController
  protected:
   virtual void passive();
   virtual void raw(const ros::Duration &period);
-  virtual void follow(const ros::Time &time, const ros::Duration &period) = 0;
+  virtual void follow(const ros::Time &time, const ros::Duration &period) {};
   virtual void tfVelFromYawToBase(const ros::Time &time);
   virtual void recovery(const ros::Duration &period);
   virtual void moveJoint(const ros::Duration &period) = 0;
